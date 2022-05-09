@@ -71,9 +71,9 @@ UC *GetVariable(CUC *Path, CUC *Class, CUC *Variable) {
     if (Line == NULL) { fclose(File); return NULL; }
     CUI _Length = (Length(Line) - (Length(Variable) + 3));
     UC *Output = (UC *) malloc (sizeof(UC) * _Length);
-    printf("%s::%i\n", Line, _Length);
-    fclose(File);
-    free(Line); return Output;
+    for (UI Idx = (Length(Line) - _Length) - 1; Idx < Length(Line); Idx++) {
+        Output[Idx - (Length(Line) - _Length) + 1] = Line[Idx];
+    } fclose(File); free(Line); return Output;
 }
 
 int main(void) {
