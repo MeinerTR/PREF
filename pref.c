@@ -25,11 +25,9 @@ pUC *prefGet(pCUC *_Path, pCUC *_Key7) {
     pUC *_Output7 = (pUC *) malloc (
         sizeof(pUC) ); char _CHR7;
     pCUI _LEN7 = pLength(_Key7);
-    printf("%i\n", _LEN7);
     while (1) { _CHR7 = fgetc(_File7);
         if (_CHR7 == '\n') {
             if (_ADD7 == True) {
-                printf("1...\n");
                 return _Output7;
             } _Hope7 = True; _CURR7 = 0;
         } else if (_CHR7 == EOF) {
@@ -43,7 +41,7 @@ pUC *prefGet(pCUC *_Path, pCUC *_Key7) {
                     if (_CHR7 != _Key7[_CURR7]) {
                         _Hope7 = False;         }
                     if (_CHR7 == ' ' & _CURR7 == _LEN7) {
-                        _ADD7 = True; } else {_CURR7++; printf("3...\n");}
+                        _ADD7 = True; } else {_CURR7++; }
                 }
         }
     } fclose(_File7);
