@@ -1,83 +1,58 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define UI unsigned int
-#define CUI const unsigned int
-#define UC unsigned char
-#define CUC const unsigned char
+#define pUI unsigned int
+#define pCUI const unsigned int
+#define pUC unsigned char
+#define pCUC const unsigned char
 
 typedef enum {True, False} Bool;
-#define ERROR(MSG) {perror(#MSG); exit(-1);}
+#define _ERROR(MSG) {perror(#MSG); exit(42);}
 
-CUI Length(CUC *STR) {
-    UI Output = 0;
+static pCUI pLength(pCUC *_STR7) {
+    pUI _Output7 = 0;
     while (1) {
-        if (STR[Output] == '\0') {
-            break; } Output++;
-} return Output;                 }
-
-static Bool ClassHere(CUC *Line, CUC *Class) {
-    CUI _Length = Length(Class);
-    for (UI Idx = 0; Idx < _Length; Idx++) {
-        if (Line[Idx + 1] != Class[Idx])   {
-            return False;                  }
-    } if (Line[_Length + 1] == ']')        {
-        return True;} else {return False;  }
-                                           }
-
-static Bool VariableHere(CUC *Line, CUC *Variable) {
-    CUI _Length = Length(Variable);
-    for (UI Idx = 0; Idx < _Length; Idx++) {
-        if (Line[Idx] != Variable[Idx])    {
-            return False;                  }
-    } if (Line[_Length] == ':')            {
-        return True;} else {return False;  }
-                                           }
-
-static UC *GetLine(FILE *File, CUC *Class, CUC *Variable) {
-    char CHR; UI LLen = 0, VLen = 0, _Line = 3;
-    UC *Line = (UC *) malloc (sizeof(UC) * _Line);
-    Bool CorrectOne = False; while (CHR != -2) {
-        CHR = fgetc(File);
-        if (CHR == '\n' | CHR == EOF) {
-            if (Line[0] == '[') {
-                if (ClassHere(Line, Class) == True) {
-                    CorrectOne = True; 
-                } else {
-                    CorrectOne = False;
-                } if (CHR == EOF) {CHR = -2;}
-            } else if (CorrectOne == True) {
-                if (VariableHere(Line, Variable) == True) {
-                    return Line;
-                }  } free(Line);
-            LLen = 0; VLen = 0; _Line = 3;
-            Line = (UC *) malloc (sizeof(UC) * _Line);
-        } else {
-            if (CHR == ':') {
-                VLen = LLen;
-            } else if (LLen == _Line) {
-                Line = (UC *) realloc (
-                Line, sizeof(UC) * LLen + 1);
-                _Line = LLen + 1; } 
-                Line[LLen] = CHR; LLen++;
-        }
-    } return NULL;
+        if (_STR7[_Output7] == '\0') {
+        break; } else { _Output7++; }
+    } return _Output7;
 }
 
-UC *GetVariable(CUC *Path, CUC *Class, CUC *Variable) {
-    FILE *File = fopen(Path, "r");
-    if (!File) ERROR(Unable to open file!)
-    UC *Line = GetLine(File, Class, Variable);
-    if (Line == NULL) { fclose(File); return NULL; }
-    CUI _Length = (Length(Line) - (Length(Variable) + 3));
-    UC *Output = (UC *) malloc (sizeof(UC) * _Length);
-    for (UI Idx = (Length(Line) - _Length) - 1; Idx < Length(Line); Idx++) {
-        Output[Idx - (Length(Line) - _Length) + 1] = Line[Idx];
-    } fclose(File); free(Line); return Output;
+pUC *prefGet(pCUC *_Path, pCUC *_Key7) {
+    FILE *_File7 = fopen(_Path, "r");
+    if (!_File7) { return NULL; }
+    Bool _ADD7 = False, _Hope7 = True;
+    pUI _CURR7 = 0, _CURR5 = 0;
+    pUC *_Output7 = (pUC *) malloc (
+        sizeof(pUC) ); char _CHR7;
+    pCUI _LEN7 = pLength(_Key7);
+    printf("%i\n", _LEN7);
+    while (1) { _CHR7 = fgetc(_File7);
+        if (_CHR7 == '\n') {
+            if (_ADD7 == True) {
+                printf("1...\n");
+                return _Output7;
+            } _Hope7 = True; _CURR7 = 0;
+        } else if (_CHR7 == EOF) {
+            if (_ADD7 == True) { return _Output7; } break; 
+            } else {
+                if (_ADD7 == True) {
+                    _Output7 = realloc (
+                    _Output7, sizeof(pUC) * _CURR5 + 1
+                    ); _Output7[_CURR5] = _CHR7; _CURR5++;
+                } else if (_Hope7 == True) {
+                    if (_CHR7 != _Key7[_CURR7]) {
+                        _Hope7 = False;         }
+                    if (_CHR7 == ' ' & _CURR7 == _LEN7) {
+                        _ADD7 = True; } else {_CURR7++; printf("3...\n");}
+                }
+        }
+    } fclose(_File7);
+    free(_Output7); return NULL;
 }
 
 int main(void) {
-    UC *WIDTH = GetVariable("./general.pref", "SCREEN", "HEIGHT");
-    printf("%s\n", WIDTH);
-    free(WIDTH);
+    pUC *Width = prefGet("./general.pref", "HelloWorld");
+    if (!Width) _ERROR(Unable to get the variable!)
+    printf("%s\n", Width);
+    free(Width);
 }
