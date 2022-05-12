@@ -72,16 +72,15 @@ void prefChange(pCUC *_Path7, pCUC *_Key7, pCUC *_NewVar7, pCUC *_SaveAS7) {
 }
 
 int main(void) {
-    pUC *PreStar = prefGet("./General.pref", "STAR"),
-        *PrePlanet = prefGet("./General.pref", "PLANET");
+    pUC *Star = prefGet("./WhereAreWe.pref", "STAR"),
+    *Planet = prefGet("./WhereAreWe.pref", "PLANET");
     printf("\nBefore changed!\n");
-    printf("STAR: %s\nPLANET: %s\n", PreStar, PrePlanet);
-    prefChange("./General.pref", "STAR", "Son", "General.pref");
-    prefChange("./General.pref", "PLANET", "Mars", "General.pref");
-    free(PreStar); free(PrePlanet);
-    pUC *NewStar = prefGet("./General.pref", "STAR"),
-        *NewPlanet = prefGet("./General.pref", "PLANET");
-    printf("\nAfter changed!\n"); // DUDE WTH IS THAT BUG?
-    printf("STAR: %s\nPLANET: %s\n\n", NewStar, NewPlanet);
-    free(NewStar); free(NewPlanet);
+    printf("STAR: %s\nPLANET: %s\n", Star, Planet);
+    prefChange("./WhereAreWe.pref", "STAR", "Son", "WhereAreWe.pref");
+    prefChange("./WhereAreWe.pref", "PLANET", "Mars", "WhereAreWe.pref");
+    Star = prefGet("./WhereAreWe.pref", "STAR");
+    Planet = prefGet("./WhereAreWe.pref", "PLANET");
+    printf("\nAfter changed!\n");
+    printf("STAR: %s\nPLANET: %s\n\n", Star, Planet);
+    free(Star); free(Planet);
 }
