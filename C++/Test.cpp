@@ -8,7 +8,7 @@ int main(void) {
     unsigned int WIDTH;
     std::string UserName;
     try {
-        User.Change("PLAYER.NAME", "MeinerTR", User.Path);
+        User.Change("PLAYER.NAME", "MeinerTR");
     } catch (int ERRCODE) {
         switch (ERRCODE) {
             case (prefNULL): {

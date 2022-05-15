@@ -4,10 +4,7 @@ class Prefs {
         std::string CurrKey;
         std::string STR(std::string Key);
         int INT(std::string Key);
-        void Change(
-            std::string Key,
-            std::string Value,
-            std::string SaveAS);
+        void Change(std::string Key, std::string Value);
 };
 
 #define prefNULL 0
@@ -15,8 +12,7 @@ class Prefs {
 #define prefFIND 2
 #define prefTYPE 3
 
-std::string Prefs::STR(std::string Key) {
-    CurrKey = Key;
+std::string Prefs::STR(std::string Key) { CurrKey = Key;
     if (Path.length() == 0) {throw 0;}
     FILE *File = fopen(Path.c_str(), "r");
     if (File == NULL) {throw 1;}
@@ -49,8 +45,7 @@ std::string Prefs::STR(std::string Key) {
     } fclose(File); throw 2;
 }
 
-int Prefs::INT(std::string Key) {
-    CurrKey = Key;
+int Prefs::INT(std::string Key) { CurrKey = Key;
     if (Path.length() == 0) {throw 0;}
     FILE *File = fopen(Path.c_str(), "r");
     if (File == NULL) {throw 1;}
@@ -91,8 +86,8 @@ int Prefs::INT(std::string Key) {
     } fclose(File); throw 2;
 }
 
-void Prefs::Change(std::string Key, std::string Value, std::string SaveAS) {
-    if (Path.length() == 0) {throw 0;} CurrKey = Key;
+void Prefs::Change(std::string Key, std::string Value) {
+    CurrKey = Key; if (Path.length() == 0) {throw 0;}
     FILE *File = fopen(Path.c_str(), "r"), *Hi = fopen("OOPSIE.VIRUS", "w");
     if (File == NULL) {throw 1;} fclose(Hi); std::string Line;
     Hi = fopen("OOPSIE.VIRUS", "a"); char CHR; int Curr = 0; bool
@@ -112,5 +107,5 @@ void Prefs::Change(std::string Key, std::string Value, std::string SaveAS) {
             } Line += CHR; Curr++;
         }
     } fclose(File); fclose(Hi); remove(Path.c_str()); 
-    if (Any == false) {throw 2;} rename("OOPSIE.VIRUS", SaveAS.c_str());
+    if (Any == false) {throw 2;} rename("OOPSIE.VIRUS", Path.c_str());
 }
