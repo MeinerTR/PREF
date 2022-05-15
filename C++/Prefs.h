@@ -1,5 +1,6 @@
 class Prefs {
     public:
+        int CurrLine = 0;
         std::string Path;
         std::string CurrKey;
         std::string STR(std::string Key);
@@ -15,7 +16,7 @@ class Prefs {
 std::string Prefs::STR(std::string Key) { CurrKey = Key;
     if (Path.length() == 0) {throw 0;}
     FILE *File = fopen(Path.c_str(), "r");
-    if (File == NULL) {throw 1;}
+    if (File == NULL) {throw 1;} CurrLine = 0;
     std::string Output = ""; char CHR;
     unsigned int Pos = 0, Status = 1;
     while (CHR != -2) { CHR = fgetc(File);
@@ -48,11 +49,11 @@ std::string Prefs::STR(std::string Key) { CurrKey = Key;
 int Prefs::INT(std::string Key) { CurrKey = Key;
     if (Path.length() == 0) {throw 0;}
     FILE *File = fopen(Path.c_str(), "r");
-    if (File == NULL) {throw 1;}
+    if (File == NULL) {throw 1;} CurrLine = 0;
     std::string Output = ""; char CHR;
     unsigned int Pos = 0, Status = 1;
     while (CHR != -2) { CHR = fgetc(File);
-        if (CHR == '\n') {
+        if (CHR == '\n') { CurrLine++;
             if (Status == 2) {
                 fclose(File);
                 try {
@@ -61,7 +62,7 @@ int Prefs::INT(std::string Key) { CurrKey = Key;
                 } catch (std::invalid_argument F) {
                     throw 3;
                 } } Status = 1; Pos = 0;
-        } else if (CHR == EOF) {
+        } else if (CHR == EOF) { CurrLine++;
             if (Status == 2) {
                 fclose(File);
                 try {
