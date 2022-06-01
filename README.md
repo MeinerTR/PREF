@@ -1,4 +1,4 @@
-# prefs
+# *pref
 OLD
-# ini
+# *ini
 NEW
