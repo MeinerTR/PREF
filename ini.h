@@ -162,10 +162,9 @@ p_STR *INI_Get_STRS(p_STR *Keys, p_LIST Lengths, p_UI Length) {
                 Output[idX] = (p_STR) malloc ((Idx - KLen + 1) * sizeof(p_UC));
                 strcpy(Output[idX], Value);
                 INI_Free(Value); idX++;
-                if (idX < Length + 1) {
+                if (idX < Length) {
                     return NULL;
                 } else {
-                    printf("HOW\n");
                     return Output;
                 }
             } INI_Free(Value); CHR = -2;
@@ -320,13 +319,12 @@ p_LIST INI_Get_INTS(p_STR *Keys, p_LIST Lengths, p_UI Length) {
                 } else {
                     Output[idX] = CopyCat;  
                 } INI_Free(Value); idX++;
-                if (idX < Length + 1) {
+                if (idX < Length) {
                     return NULL;
                 } else {
-                    printf("HOW\n");
                     return Output;
                 }
-            } INI_Free(Value); CHR = -2;
+            } CHR = -2;
         } else {
             if (Mode != 0) {
                 if (Mode == 1) {
