@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define p_CO const
 #define p_UN unsigned
@@ -15,7 +16,7 @@
 #define p_UC p_UN p_C
 #define p_CUC p_CO p_UC
 
-#define p_LIST p_CUI *
+#define p_LIST p_UI *
 #define p_V void
 #define p_STR p_UC *
 
@@ -27,17 +28,17 @@ FILE *INI_FILE;
     if (ED != NULL) {   \
         free(ED);       \
         ED = NULL;      \
-    } 
+    }
 
 typedef enum {p_F, p_T} p_B;
 
-#define INI_NULL_KEY (p_STR) "*!;.;!-"
-#define Return_INI_NULL_KEYS p_STR *    \
-Pikachu = (p_STR *) calloc (0, 0);      \
-                            return Pikachu
+#define INI_NULL_KEY (p_STR) "*[idX]!;.;!-"
+// #define INI_NULL_KEYS p_STR *    \
+// Pikachu = (p_STR *) calloc (0, 0);      \
+//                             return Pikachu
 #define INI_NULL_TYPE 0x404
 #define INI_NULL_KEY_INT 0x727
-// #define Return_INI_NULL_KEYS_INT p_LIST  \ 
+// #define INI_NULL_KEYS_INT p_LIST  \ 
 // Pikachu = (p_LIST) calloc (0, 0);        \
 //                             return Pikachu
 
@@ -118,7 +119,17 @@ p_STR INI_Get_STR(p_UC *Key, p_CUI Length) {
     }
 }
 
-p_STR *INI_Get_STRS(p_STR *Keys, p_UI Length, p_LIST Lengths) {
+p_STR *INI_New_STR_List(p_CUI Length) {
+    p_STR *Output = (p_STR *) calloc (Length, sizeof(p_STR));
+    return Output;
+}
+
+p_LIST INI_New_LEN_List(p_CUI Length) {
+    p_LIST Output = (p_LIST) calloc (Length, sizeof(p_UI));
+    return Output;
+}
+
+p_STR *INI_Get_STRS(p_STR *Keys, p_LIST Lengths, p_UI Length) {
     p_UI Idx = 0, Mode = 1, KLen, iDx, idX = 0;
     p_B GotFirst = p_F; fseek(INI_FILE, 0, SEEK_SET);
     p_C CHR; p_UC *CurrKey, *Value, **Output;
@@ -127,43 +138,55 @@ p_STR *INI_Get_STRS(p_STR *Keys, p_UI Length, p_LIST Lengths) {
 
     CurrKey = (p_STR) calloc (0, 0);
     Value = (p_STR) calloc (0, 0);
-    Output = (p_STR *) calloc (0, 0);
+    Output = (p_STR *) calloc (Length, 0);
 
     while (CHR != -2) {
         CHR = fgetc(INI_FILE);
 
         if (CHR == '\n') {
-            if (Mode == 2) {
-                Output = (p_STR *) realloc (
-                    Output, (idX + 1) * sizeof(p_STR)
-                ); Output[idX] = Value; idX++;
-            } else {
-                Idx = 0; Mode = 1;
-                GotFirst = p_F;
-                INI_Free(CurrKey);
+            if (Mode == 2) { 
+                Output[idX] = (p_STR) malloc ((Idx - KLen + 1) * sizeof(p_UC));
+                strcpy(Output[idX], Value);
                 INI_Key = Keys[idX];
-            }
+                INI_Free(Value);
+                if (idX == Length - 1) {
+                    INI_Free(CurrKey);
+                    return Output;
+                } idX++;
+            } Idx = 0; Mode = 1;
+            GotFirst = p_F;
+            INI_Free(CurrKey);
         } else if (CHR == EOF) {
+            INI_Free(CurrKey);
             if (Mode == 2) {
-                Output = (p_STR *) realloc (
-                    Output, (idX + 1) * sizeof(p_STR)
-                ); Output[idX] = Value; idX++;
-                if (idX < Length) {
-                    Return_INI_NULL_KEYS;
+                Output[idX] = (p_STR) malloc ((Idx - KLen + 1) * sizeof(p_UC));
+                strcpy(Output[idX], Value);
+                INI_Free(Value); idX++;
+                if (idX < Length + 1) {
+                    return NULL;
                 } else {
+                    printf("HOW\n");
                     return Output;
                 }
-            } CHR = -2;
+            } INI_Free(Value); CHR = -2;
         } else {
             if (Mode != 0) {
                 if (Mode == 1) {
                     if (CHR == ' ')  {
-                        CurrKey[Idx] = '\0';
-                        If_INI_Equals(CurrKey, Keys[idX], Lengths[idX]) {
-                            Mode = 2;
-                            KLen = Idx;
-                        } else {
-                            Mode = 0;
+                        for (p_UI idx = 0; idx < Length; idx++) {
+                            If_INI_Equals(CurrKey, Keys[idx], Lengths[idx]) {
+                                if (Lengths[idx] == Idx) {
+                                    Mode = 2;
+                                    KLen = Idx;
+                                    break;
+                                } else {
+                                    if (Mode != 2) {
+                                        Mode = 0;
+                                    }
+                                }
+                            } else {
+                                Mode = 0;
+                            }
                         }
                     } else {
                         CurrKey = (p_STR) realloc ( CurrKey,
@@ -177,8 +200,8 @@ p_STR *INI_Get_STRS(p_STR *Keys, p_UI Length, p_LIST Lengths) {
                             KLen++;
                         }
                     } if (GotFirst == p_T) {
-                        Value = (p_STR) realloc ( Value,
-                            sizeof((Idx - KLen) + 1) * sizeof(p_UC)
+                        Value = (p_STR) realloc (
+                            Value, (Idx - KLen + 1) * sizeof(p_UC)
                         ); Value[Idx - KLen] = CHR;
                     }
                 } Idx++;
@@ -250,6 +273,94 @@ p_I INI_Get_INT(p_UC *Key, p_CUI Length) {
                         Output = (p_STR) realloc ( Output,
                             sizeof((Idx - KLen) + 1) * sizeof(p_UC)
                         ); Output[Idx - KLen] = CHR;
+                    }
+                } Idx++;
+            }
+        } 
+    }
+}
+
+p_LIST INI_Get_INTS(p_STR *Keys, p_LIST Lengths, p_UI Length) {
+    p_UI Idx = 0, Mode = 1, KLen, iDx, idX = 0;
+    p_B GotFirst = p_F; fseek(INI_FILE, 0, SEEK_SET);
+    p_C CHR; p_UC *CurrKey, *Value; p_LIST Output;
+
+    INI_Key = Keys[idX];
+
+    CurrKey = (p_STR) calloc (0, 0);
+    Value = (p_STR) calloc (0, 0);
+    Output = (p_LIST) calloc (Length, 0);
+
+    while (CHR != -2) {
+        CHR = fgetc(INI_FILE);
+
+        if (CHR == '\n') {
+            if (Mode == 2) { 
+                p_UI CopyCat = atoi(Value);
+                INI_Key = Keys[idX];
+                if (!CopyCat) {
+                    Output[idX] = INI_NULL_KEY_INT;
+                } else {
+                    Output[idX] = CopyCat;  
+                } INI_Free(Value);
+                if (idX == Length - 1) {
+                    INI_Free(CurrKey);
+                    return Output;
+                } idX++;
+            } Idx = 0; Mode = 1;
+            GotFirst = p_F;
+            INI_Free(CurrKey);
+        } else if (CHR == EOF) {
+            INI_Free(CurrKey);
+            if (Mode == 2) {
+                p_UI CopyCat = atoi(Value);
+                INI_Key = Keys[idX];
+                if (!CopyCat) {
+                    Output[idX] = INI_NULL_KEY_INT;
+                } else {
+                    Output[idX] = CopyCat;  
+                } INI_Free(Value); idX++;
+                if (idX < Length + 1) {
+                    return NULL;
+                } else {
+                    printf("HOW\n");
+                    return Output;
+                }
+            } INI_Free(Value); CHR = -2;
+        } else {
+            if (Mode != 0) {
+                if (Mode == 1) {
+                    if (CHR == ' ')  {
+                        for (p_UI idx = 0; idx < Length; idx++) {
+                            If_INI_Equals(CurrKey, Keys[idx], Lengths[idx]) {
+                                if (Lengths[idx] == Idx) {
+                                    Mode = 2;
+                                    KLen = Idx;
+                                    break;
+                                } else {
+                                    if (Mode != 2) {
+                                        Mode = 0;
+                                    }
+                                }
+                            } else {
+                                Mode = 0;
+                            }
+                        }
+                    } else {
+                        CurrKey = (p_STR) realloc ( CurrKey,
+                            (Idx + 1) * sizeof(p_UC)
+                        ); CurrKey[Idx] = CHR;
+                    }
+                } else {
+                    if (GotFirst == p_F) {
+                        if (CHR != ' ') {
+                            GotFirst = p_T;
+                            KLen++;
+                        }
+                    } if (GotFirst == p_T) {
+                        Value = (p_STR) realloc (
+                            Value, (Idx - KLen + 1) * sizeof(p_UC)
+                        ); Value[Idx - KLen] = CHR;
                     }
                 } Idx++;
             }
